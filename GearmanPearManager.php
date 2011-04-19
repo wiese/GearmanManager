@@ -11,12 +11,7 @@
 
 declare(ticks = 1);
 
-/**
- * Uncomment and set to your prefix.
- */
-//define("NET_GEARMAN_JOB_CLASS_PREFIX", "");
-
-require dirname(__FILE__)."/GearmanManager.php";
+require __DIR__."/GearmanManager.php";
 
 /**
  * Implements the worker portions of the PEAR Net_Gearman library
@@ -51,10 +46,6 @@ class GearmanPearManager extends GearmanManager {
 
 		if(!class_exists("Net_Gearman_Job_Common")) {
 			require "Net/Gearman/Job/Common.php";
-		}
-
-		if(!class_exists("Net_Gearman_Job")) {
-			require "Net/Gearman/Job.php";
 		}
 
 		if(!class_exists("Net_Gearman_Job")) {
@@ -111,7 +102,6 @@ class GearmanPearManager extends GearmanManager {
 		$this->log("($handle) Workload: ".json_encode($args), GearmanManager::LOG_LEVEL_DEBUG);
 		self::$LOG = array();
 	}
-
 
 	/**
 	 * Call back for when jobs are completed
@@ -213,5 +203,3 @@ class GearmanPearManager extends GearmanManager {
 		}
 	}
 }
-
-$mgr = new GearmanPearManager();

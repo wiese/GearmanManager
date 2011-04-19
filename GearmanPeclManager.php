@@ -11,7 +11,7 @@
 
 declare(ticks = 1);
 
-require dirname(__FILE__)."/GearmanManager.php";
+require __DIR__.'/GearmanManager.php';
 
 /**
  * Implements the worker portions of the pecl/gearman library
@@ -33,12 +33,12 @@ class GearmanPeclManager extends GearmanManager {
 
 		$thisWorker->setTimeout(5000);
 
-		foreach($this->servers as $s){
+		foreach($this->servers as $s) {
 			$this->log("Adding server $s", GearmanManager::LOG_LEVEL_WORKER_INFO);
 			$thisWorker->addServers($s);
 		}
 
-		foreach($worker_list as $w){
+		foreach($worker_list as $w) {
 			$this->log("Adding job $w", GearmanManager::LOG_LEVEL_WORKER_INFO);
 			$thisWorker->addFunction($w, array($this, "do_job"), $this);
 		}
@@ -57,8 +57,8 @@ class GearmanPeclManager extends GearmanManager {
 
 				if ($thisWorker->returnCode() == GEARMAN_SUCCESS) continue;
 
-				if (!@$thisWorker->wait()){
-					if ($thisWorker->returnCode() == GEARMAN_NO_ACTIVE_FDS){
+				if (!@$thisWorker->wait()) {
+					if ($thisWorker->returnCode() == GEARMAN_NO_ACTIVE_FDS) {
 						sleep(5);
 					}
 				}
@@ -95,7 +95,7 @@ class GearmanPeclManager extends GearmanManager {
 
 		if(empty($objects[$f]) && !function_exists($f) && !class_exists($f)) {
 
-			if(!isset($this->functions[$f])){
+			if(!isset($this->functions[$f])) {
 				$this->log("Function $f is not a registered job name");
 				return;
 			}
@@ -123,26 +123,29 @@ class GearmanPeclManager extends GearmanManager {
 		/**
 		 * Run the real function here
 		 */
-		if(isset($objects[$f])){
+		if(isset($objects[$f])) {
 			$result = $objects[$f]->run($job, $log);
-		} else {
+		}
+		else {
 			$result = $f($job, $log);
 		}
 
-		if(!empty($log)){
-			foreach($log as $l){
+		if(!empty($log)) {
+			foreach($log as $l) {
 
-				if(!is_scalar($l)){
+				if(!is_scalar($l)) {
 					$l = explode("\n", trim(print_r($l, true)));
-				} elseif(strlen($l) > 256){
+				}
+				elseif(strlen($l) > 256) {
 					$l = substr($l, 0, 256)."...(truncated)";
 				}
 
-				if(is_array($l)){
-					foreach($l as $ln){
+				if(is_array($l)) {
+					foreach($l as $ln) {
 						$this->log("($h) $ln", GearmanManager::LOG_LEVEL_WORKER_INFO);
 					}
-				} else {
+				}
+				else {
 					$this->log("($h) $l", GearmanManager::LOG_LEVEL_WORKER_INFO);
 				}
 			}
@@ -150,17 +153,19 @@ class GearmanPeclManager extends GearmanManager {
 
 		$result_log = $result;
 
-		if(!is_scalar($result_log)){
+		if(!is_scalar($result_log)) {
 			$result_log = explode("\n", trim(print_r($result_log, true)));
-		} elseif(strlen($result_log) > 256){
-			$result_log = substr($result_log, 0, 256)."...(truncated)";
+		}
+		elseif(strlen($result_log) > 256) {
+			$result_log = substr($result_log, 0, 256) . "...(truncated)";
 		}
 
-		if(is_array($result_log)){
-			foreach($result_log as $ln){
+		if(is_array($result_log)) {
+			foreach($result_log as $ln) {
 				$this->log("($h) $ln", GearmanManager::LOG_LEVEL_DEBUG);
 			}
-		} else {
+		}
+		else {
 			$this->log("($h) $result_log", GearmanManager::LOG_LEVEL_DEBUG);
 		}
 
@@ -185,7 +190,7 @@ class GearmanPeclManager extends GearmanManager {
 				!function_exists($func)
 				&&
 				(!class_exists($func) || !method_exists($func, "run"))
-			){
+			) {
 				$this->log("Function $func not found in ".$props["path"]);
 				posix_kill($this->parent_pid, SIGUSR2);
 				exit();
@@ -193,5 +198,3 @@ class GearmanPeclManager extends GearmanManager {
 		}
 	}
 }
-
-$mgr = new GearmanPeclManager();

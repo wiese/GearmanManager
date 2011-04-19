@@ -7,8 +7,8 @@ CONFIG_DIR=/etc/gearman-manager
 
 # we're going to be mucking about, so we need to be root/sudo'd
 if [ "$(id -u)" != "0" ]; then
-   echo "This script must be run as root" 1>&2
-   exit 1
+	echo "This script must be run as root" 1>&2
+	exit 1
 fi
 
 # where are we now?
@@ -17,43 +17,43 @@ WORKING_DIR=$(dirname $(readlink -f $0))
 # determine if & which (supported) distro we're running
 echo "Detecting linux distro as redhat- or debian-compatible"
 if [ -f /etc/redhat-release ]; then
-    DISTRO="rhel"
+	DISTRO="rhel"
 elif [ -f /etc/debian_version ]; then
-    DISTRO="deb"
+	DISTRO="deb"
 else
-    echo "Only Redhat Enterprise (RHEL) or Debian systems currently supported"
-    exit 1
+	echo "Only Redhat Enterprise (RHEL) or Debian systems currently supported"
+	exit 1
 fi
 
 # ensure php executable is in the path
 PHPBIN=$(type -P php 2>/dev/null)
 if [ -z "${PHPBIN}" ]; then
-  while true
-  do
-    echo "Where is your php executable? (usually /usr/bin)"
-    read -re PHPPATH
-    # has to be a valid directory
-    if [ ! -d ${PHPPATH} ]; then
-      echo "Not a directory: ${PHPPATH}"
-    # has to have a 'php' executable
-    elif [ ! -x "${PHPPATH}/php" ]; then
-      echo "No 'php' executable found in ${PHPPATH}"
-    # presumably all good
-    else
-      PHPPATH=$(dirname ${PHPPATH}/php)
-      sed "s:##PATH##:PATH=\$PATH\:${PHPPATH}:" <${WORKING_DIR}/${DISTRO}.sh >${WORKING_DIR}/${DISTRO}.build.sh
-      break
-    fi
-  done
+	while true
+	do
+		echo "Where is your php executable? (usually /usr/bin)"
+		read -re PHPPATH
+		# has to be a valid directory
+		if [ ! -d ${PHPPATH} ]; then
+			echo "Not a directory: ${PHPPATH}"
+		# has to have a 'php' executable
+		elif [ ! -x "${PHPPATH}/php" ]; then
+			echo "No 'php' executable found in ${PHPPATH}"
+		# presumably all good
+		else
+			PHPPATH=$(dirname ${PHPPATH}/php)
+			sed "s:##PATH##:PATH=\$PATH\:${PHPPATH}:" <${WORKING_DIR}/${DISTRO}.sh >${WORKING_DIR}/${DISTRO}.build.sh
+			break
+		fi
+	done
 else
-  cp ${WORKING_DIR}/${DISTRO}.sh ${WORKING_DIR}/${DISTRO}.build.sh
+	cp ${WORKING_DIR}/${DISTRO}.sh ${WORKING_DIR}/${DISTRO}.build.sh
 fi
 
 
 # symlink proper library wrapper into bin
 echo "Which PHP library to use, pecl/gearman or PEAR::Net_Gearman?"
 select PHPLIB in "pecl" "pear"; do
-    break
+		break
 done
 
 # create and populate installation folder
