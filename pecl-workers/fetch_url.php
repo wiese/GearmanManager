@@ -1,15 +1,12 @@
 <?php
 
-function fetch_url($job, &$log) {
+function fetch_url($job, & $log) {
 
-    $workload = $job->workload();
+	$workload = $job->workload();
 
-    $result = file_get_contents($workload);
+	$result = file_get_contents($workload);
 
-    $log[] = "Success";
+	$log[] = "Success";
 
-    return $result;
-
+	return $result;
 }
-
-?>
