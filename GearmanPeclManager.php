@@ -34,12 +34,12 @@ class GearmanPeclManager extends GearmanManager {
 		$thisWorker->setTimeout(5000);
 
 		foreach($this->servers as $s) {
-			$this->log("Adding server $s", GearmanManager::LOG_LEVEL_WORKER_INFO);
+			$this->log("Adding server $s", self::LOG_LEVEL_WORKER_INFO);
 			$thisWorker->addServers($s);
 		}
 
 		foreach($worker_list as $w) {
-			$this->log("Adding job $w", GearmanManager::LOG_LEVEL_WORKER_INFO);
+			$this->log("Adding job $w", self::LOG_LEVEL_WORKER_INFO);
 			$thisWorker->addFunction($w, array($this, "do_job"), $this);
 		}
 
@@ -69,7 +69,7 @@ class GearmanPeclManager extends GearmanManager {
 			 * been too long, stop working.
 			 */
 			if($this->max_run_time > 0 && time() - $start > $this->max_run_time) {
-				$this->log("Been running too long, exiting", GearmanManager::LOG_LEVEL_WORKER_INFO);
+				$this->log("Been running too long, exiting", self::LOG_LEVEL_WORKER_INFO);
 				$this->stop_work = true;
 			}
 		}
@@ -104,7 +104,7 @@ class GearmanPeclManager extends GearmanManager {
 
 			if(class_exists($f) && method_exists($f, "run")) {
 
-				$this->log("Creating a $f object", GearmanManager::LOG_LEVEL_WORKER_INFO);
+				$this->log("Creating a $f object", self::LOG_LEVEL_WORKER_INFO);
 				$objects[$f] = new $f();
 
 			} elseif(!function_exists($f)) {
@@ -114,9 +114,9 @@ class GearmanPeclManager extends GearmanManager {
 			}
 		}
 
-		$this->log("($h) Starting Job: $f", GearmanManager::LOG_LEVEL_WORKER_INFO);
+		$this->log("($h) Starting Job: $f", self::LOG_LEVEL_WORKER_INFO);
 
-		$this->log("($h) Workload: $w", GearmanManager::LOG_LEVEL_DEBUG);
+		$this->log("($h) Workload: $w", self::LOG_LEVEL_DEBUG);
 
 		$log = array();
 
@@ -142,11 +142,11 @@ class GearmanPeclManager extends GearmanManager {
 
 				if(is_array($l)) {
 					foreach($l as $ln) {
-						$this->log("($h) $ln", GearmanManager::LOG_LEVEL_WORKER_INFO);
+						$this->log("($h) $ln", self::LOG_LEVEL_WORKER_INFO);
 					}
 				}
 				else {
-					$this->log("($h) $l", GearmanManager::LOG_LEVEL_WORKER_INFO);
+					$this->log("($h) $l", self::LOG_LEVEL_WORKER_INFO);
 				}
 			}
 		}
@@ -162,11 +162,11 @@ class GearmanPeclManager extends GearmanManager {
 
 		if(is_array($result_log)) {
 			foreach($result_log as $ln) {
-				$this->log("($h) $ln", GearmanManager::LOG_LEVEL_DEBUG);
+				$this->log("($h) $ln", self::LOG_LEVEL_DEBUG);
 			}
 		}
 		else {
-			$this->log("($h) $result_log", GearmanManager::LOG_LEVEL_DEBUG);
+			$this->log("($h) $result_log", self::LOG_LEVEL_DEBUG);
 		}
 
 		/**

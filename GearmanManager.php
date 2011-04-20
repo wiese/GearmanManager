@@ -211,7 +211,7 @@ abstract class GearmanManager {
 		 */
 		$this->fork_me("validate_workers");
 
-		$this->log("Started with pid $this->pid", GearmanManager::LOG_LEVEL_PROC_INFO);
+		$this->log("Started with pid $this->pid", self::LOG_LEVEL_PROC_INFO);
 
 		/**
 		 * Start the initial workers and set up a running environment
@@ -261,7 +261,7 @@ abstract class GearmanManager {
 			if($exited) {
 					$worker = $this->children[$exited];
 					unset($this->children[$exited]);
-					$this->log("Child $exited exited ($worker)", GearmanManager::LOG_LEVEL_PROC_INFO);
+					$this->log("Child $exited exited ($worker)", self::LOG_LEVEL_PROC_INFO);
 					if(!$this->stop_work) {
 						$this->start_worker($worker);
 					}
@@ -269,7 +269,7 @@ abstract class GearmanManager {
 		}
 
 		if($this->stop_work && time() - $this->stop_time > 60) {
-			$this->log("Children have not exited, killing.", GearmanManager::LOG_LEVEL_PROC_INFO);
+			$this->log("Children have not exited, killing.", self::LOG_LEVEL_PROC_INFO);
 			$this->stop_children(SIGKILL);
 		}
 	}
@@ -282,7 +282,7 @@ abstract class GearmanManager {
 		if($this->isparent) {
 			if(!empty($this->pid_file) && file_exists($this->pid_file)) {
 				if(!unlink($this->pid_file)) {
-					$this->log("Could not delete PID file", GearmanManager::LOG_LEVEL_PROC_INFO);
+					$this->log("Could not delete PID file", self::LOG_LEVEL_PROC_INFO);
 				}
 			}
 		}
@@ -389,20 +389,20 @@ abstract class GearmanManager {
 		if(isset($opts["v"])) {
 			switch($opts["v"]) {
 				case false:
-					$this->verbose = GearmanManager::LOG_LEVEL_INFO;
+					$this->verbose = self::LOG_LEVEL_INFO;
 					break;
 				case "v":
-					$this->verbose = GearmanManager::LOG_LEVEL_PROC_INFO;
+					$this->verbose = self::LOG_LEVEL_PROC_INFO;
 					break;
 				case "vv":
-					$this->verbose = GearmanManager::LOG_LEVEL_WORKER_INFO;
+					$this->verbose = self::LOG_LEVEL_WORKER_INFO;
 					break;
 				case "vvv":
-					$this->verbose = GearmanManager::LOG_LEVEL_DEBUG;
+					$this->verbose = self::LOG_LEVEL_DEBUG;
 					break;
 				case "vvvv":
 				default:
-					$this->verbose = GearmanManager::LOG_LEVEL_CRAZY;
+					$this->verbose = self::LOG_LEVEL_CRAZY;
 					break;
 			}
 		}
@@ -418,12 +418,12 @@ abstract class GearmanManager {
 			 */
 			if(!empty($this->pid_file)) {
 				if(!chown($this->pid_file, $user['uid'])) {
-					$this->log("Unable to chown PID file to {$this->user}", GearmanManager::LOG_LEVEL_PROC_INFO);
+					$this->log("Unable to chown PID file to {$this->user}", self::LOG_LEVEL_PROC_INFO);
 				}
 			}
 			if(!empty($this->log_file_handle)) {
 				if(!chown($this->config['log_file'], $user['uid'])) {
-					$this->log("Unable to chown log file to {$this->user}", GearmanManager::LOG_LEVEL_PROC_INFO);
+					$this->log("Unable to chown log file to {$this->user}", self::LOG_LEVEL_PROC_INFO);
 				}
 			}
 
@@ -431,7 +431,7 @@ abstract class GearmanManager {
 			if (posix_geteuid() != $user['uid']) {
 				$this->show_help("Unable to change user to {$this->user} (UID: {$user['uid']}).");
 			}
-			$this->log("User set to {$this->user}", GearmanManager::LOG_LEVEL_PROC_INFO);
+			$this->log("User set to {$this->user}", self::LOG_LEVEL_PROC_INFO);
 		}
 
 		if(!empty($this->config['auto_update'])) {
@@ -635,7 +635,7 @@ abstract class GearmanManager {
 	 *
 	 */
 	protected function validate_workers() {
-		$this->log("Helper forked", GearmanManager::LOG_LEVEL_PROC_INFO);
+		$this->log("Helper forked", self::LOG_LEVEL_PROC_INFO);
 
 		$this->load_workers();
 
@@ -753,7 +753,7 @@ abstract class GearmanManager {
 
 				$this->start_lib_worker($worker_list);
 
-				$this->log("Child exiting", GearmanManager::LOG_LEVEL_WORKER_INFO);
+				$this->log("Child exiting", self::LOG_LEVEL_WORKER_INFO);
 
 				exit();
 
@@ -768,7 +768,7 @@ abstract class GearmanManager {
 
 			default:
 				// parent
-				$this->log("Started child $pid ($worker)", GearmanManager::LOG_LEVEL_PROC_INFO);
+				$this->log("Started child $pid ($worker)", self::LOG_LEVEL_PROC_INFO);
 				$this->children[$pid] = $worker;
 		}
 	}
@@ -777,10 +777,10 @@ abstract class GearmanManager {
 	 * Stops all running children
 	 */
 	protected function stop_children($signal=SIGTERM) {
-		$this->log("Stopping children", GearmanManager::LOG_LEVEL_PROC_INFO);
+		$this->log("Stopping children", self::LOG_LEVEL_PROC_INFO);
 
 		foreach($this->children as $pid=>$worker) {
-			$this->log("Stopping child $pid ($worker)", GearmanManager::LOG_LEVEL_PROC_INFO);
+			$this->log("Stopping child $pid ($worker)", self::LOG_LEVEL_PROC_INFO);
 			posix_kill($pid, $signal);
 		}
 	}
@@ -791,7 +791,7 @@ abstract class GearmanManager {
 	protected function register_ticks($parent=true) {
 
 		if($parent) {
-			$this->log("Registering signals for parent", GearmanManager::LOG_LEVEL_DEBUG);
+			$this->log("Registering signals for parent", self::LOG_LEVEL_DEBUG);
 			pcntl_signal(SIGTERM, array($this, "signal"));
 			pcntl_signal(SIGINT,  array($this, "signal"));
 			pcntl_signal(SIGUSR1,  array($this, "signal"));
@@ -799,7 +799,7 @@ abstract class GearmanManager {
 			pcntl_signal(SIGCONT,  array($this, "signal"));
 			pcntl_signal(SIGHUP,  array($this, "signal"));
 		} else {
-			$this->log("Registering signals for child", GearmanManager::LOG_LEVEL_DEBUG);
+			$this->log("Registering signals for child", self::LOG_LEVEL_DEBUG);
 			$res = pcntl_signal(SIGTERM, array($this, "signal"));
 			if(!$res) {
 				exit();
@@ -843,7 +843,7 @@ abstract class GearmanManager {
 					}
 					break;
 				case SIGHUP:
-					$this->log("Restarting children", GearmanManager::LOG_LEVEL_PROC_INFO);
+					$this->log("Restarting children", self::LOG_LEVEL_PROC_INFO);
 					$this->stop_children();
 					break;
 				default:
@@ -855,7 +855,7 @@ abstract class GearmanManager {
 	/**
 	 * Logs data to disk or stdout
 	 */
-	protected function log($message, $level=GearmanManager::LOG_LEVEL_INFO) {
+	protected function log($message, $level=self::LOG_LEVEL_INFO) {
 
 		static $init = false;
 
@@ -881,19 +881,19 @@ abstract class GearmanManager {
 		$label = "";
 
 		switch($level) {
-			case GearmanManager::LOG_LEVEL_INFO;
+			case self::LOG_LEVEL_INFO;
 				$label = "INFO  ";
 				break;
-			case GearmanManager::LOG_LEVEL_PROC_INFO:
+			case self::LOG_LEVEL_PROC_INFO:
 				$label = "PROC  ";
 				break;
-			case GearmanManager::LOG_LEVEL_WORKER_INFO:
+			case self::LOG_LEVEL_WORKER_INFO:
 				$label = "WORKER";
 				break;
-			case GearmanManager::LOG_LEVEL_DEBUG:
+			case self::LOG_LEVEL_DEBUG:
 				$label = "DEBUG ";
 				break;
-			case GearmanManager::LOG_LEVEL_CRAZY:
+			case self::LOG_LEVEL_CRAZY:
 				$label = "CRAZY ";
 				break;
 		}
@@ -916,13 +916,13 @@ abstract class GearmanManager {
 	 */
 	protected function syslog($message, $level) {
 		switch($level) {
-			case GearmanManager::LOG_LEVEL_INFO;
-			case GearmanManager::LOG_LEVEL_PROC_INFO:
-			case GearmanManager::LOG_LEVEL_WORKER_INFO:
+			case self::LOG_LEVEL_INFO;
+			case self::LOG_LEVEL_PROC_INFO:
+			case self::LOG_LEVEL_WORKER_INFO:
 			default:
 				$priority = LOG_INFO;
 				break;
-			case GearmanManager::LOG_LEVEL_DEBUG:
+			case self::LOG_LEVEL_DEBUG:
 				$priority = LOG_DEBUG;
 				break;
 		}

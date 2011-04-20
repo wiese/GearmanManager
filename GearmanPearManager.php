@@ -37,7 +37,7 @@ class GearmanPearManager extends GearmanManager {
 		if (defined('NET_GEARMAN_JOB_PATH')) {
 			$this->log(
 				"Taking worker dir from pre-exising constant, not config file.",
-				GearmanManager::LOG_LEVEL_DEBUG
+				self::LOG_LEVEL_DEBUG
 			);
 		}
 		else {
@@ -59,7 +59,7 @@ class GearmanPearManager extends GearmanManager {
 		$worker = new Net_Gearman_Worker($this->servers);
 
 		foreach($worker_list as $w) {
-			$this->log("Adding job $w", GearmanManager::LOG_LEVEL_WORKER_INFO);
+			$this->log("Adding job $w", self::LOG_LEVEL_WORKER_INFO);
 			$worker->addAbility($w);
 		}
 
@@ -83,13 +83,13 @@ class GearmanPearManager extends GearmanManager {
 	public function monitor($idle, $lastJob) {
 
 		if($this->max_run_time > 0 && time() - $this->start_time > $this->max_run_time) {
-			$this->log("Been running too long, exiting", GearmanManager::LOG_LEVEL_WORKER_INFO);
+			$this->log("Been running too long, exiting", self::LOG_LEVEL_WORKER_INFO);
 			$this->stop_work = true;
 		}
 
 		$time = time() - $lastJob;
 
-		$this->log("Worker's last job $time seconds ago", GearmanManager::LOG_LEVEL_CRAZY);
+		$this->log("Worker's last job $time seconds ago", self::LOG_LEVEL_CRAZY);
 
 		return $this->stop_work;
 	}
@@ -98,8 +98,8 @@ class GearmanPearManager extends GearmanManager {
 	 * Call back for when jobs are started
 	 */
 	public function job_start($handle, $job, $args) {
-		$this->log("($handle) Starting Job: $job", GearmanManager::LOG_LEVEL_WORKER_INFO);
-		$this->log("($handle) Workload: ".json_encode($args), GearmanManager::LOG_LEVEL_DEBUG);
+		$this->log("($handle) Starting Job: $job", self::LOG_LEVEL_WORKER_INFO);
+		$this->log("($handle) Workload: ".json_encode($args), self::LOG_LEVEL_DEBUG);
 		self::$LOG = array();
 	}
 
@@ -107,7 +107,7 @@ class GearmanPearManager extends GearmanManager {
 	 * Call back for when jobs are completed
 	 */
 	public function job_complete($handle, $job, $result) {
-		$this->log("($handle) Completed Job: $job", GearmanManager::LOG_LEVEL_WORKER_INFO);
+		$this->log("($handle) Completed Job: $job", self::LOG_LEVEL_WORKER_INFO);
 
 		$this->log_result($handle, $result);
 	}
@@ -118,7 +118,7 @@ class GearmanPearManager extends GearmanManager {
 	public function job_fail($handle, $job, $result) {
 		$message = "($handle) Failed Job: $job: ".$result->getMessage();
 
-		$this->log($message, GearmanManager::LOG_LEVEL_WORKER_INFO);
+		$this->log($message, self::LOG_LEVEL_WORKER_INFO);
 
 		$this->log_result($handle, $result);
 	}
@@ -145,9 +145,9 @@ class GearmanPearManager extends GearmanManager {
 					foreach($l as $ln) {
 						$log_message.= "($handle) $ln\n";
 					}
-					$this->log($log_message, GearmanManager::LOG_LEVEL_WORKER_INFO);
+					$this->log($log_message, self::LOG_LEVEL_WORKER_INFO);
 				} else {
-					$this->log("($handle) $l", GearmanManager::LOG_LEVEL_WORKER_INFO);
+					$this->log("($handle) $l", self::LOG_LEVEL_WORKER_INFO);
 				}
 			}
 		}
@@ -165,9 +165,9 @@ class GearmanPearManager extends GearmanManager {
 			foreach($result_log as $ln) {
 				$log_message.="($handle) $ln\n";
 			}
-			$this->log($log_message, GearmanManager::LOG_LEVEL_DEBUG);
+			$this->log($log_message, self::LOG_LEVEL_DEBUG);
 		} else {
-			$this->log("($handle) $result_log", GearmanManager::LOG_LEVEL_DEBUG);
+			$this->log("($handle) $result_log", self::LOG_LEVEL_DEBUG);
 		}
 	}
 
