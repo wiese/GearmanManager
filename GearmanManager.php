@@ -33,8 +33,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 **/
 
-declare(ticks = 1);
-
 error_reporting(E_ALL | E_STRICT);
 
 /**
@@ -221,7 +219,11 @@ abstract class GearmanManager {
 		/**
 		 * Main processing loop for the parent process
 		 */
-		while(!$this->stop_work || count($this->children)) {
+		while(
+			pcntl_signal_dispatch()
+			&&
+			(!$this->stop_work || count($this->children))
+		) {
 
 			$this->process_loop();
 
@@ -376,9 +378,11 @@ abstract class GearmanManager {
 
 		if(!empty($this->config['log_file'])) {
 			if($this->config['log_file'] === 'syslog') {
+				ini_set('error_log', 'syslog');
 				$this->log_syslog = true;
 			}
 			else {
+				ini_set('error_log', $this->config['log_file']);
 				$this->log_file_handle = @fopen($this->config['log_file'], "a");
 				if(!$this->log_file_handle) {
 					$this->show_help("Could not open log file {$this->config['log_file']}");
@@ -446,6 +450,7 @@ abstract class GearmanManager {
 		}
 
 		$dirs = explode(",", $this->worker_dir);
+		$dirs = array_map('trim', $dirs);
 		foreach($dirs as $dir) {
 			if(!file_exists($dir)) {
 				$this->show_help("Worker dir ".$dir." not found");
@@ -617,7 +622,13 @@ abstract class GearmanManager {
 				break;
 			default:
 				$this->helper_pid = $pid;
-				while($this->wait_for_signal && !$this->stop_work) {
+				while(
+					pcntl_signal_dispatch()
+					&&
+					$this->wait_for_signal
+					&&
+					!$this->stop_work
+				) {
 					usleep(5000);
 					pcntl_waitpid($pid, $status, WNOHANG);
 
@@ -793,12 +804,13 @@ abstract class GearmanManager {
 		if($parent) {
 			$this->log("Registering signals for parent", self::LOG_LEVEL_DEBUG);
 			pcntl_signal(SIGTERM, array($this, "signal"));
-			pcntl_signal(SIGINT,  array($this, "signal"));
-			pcntl_signal(SIGUSR1,  array($this, "signal"));
-			pcntl_signal(SIGUSR2,  array($this, "signal"));
-			pcntl_signal(SIGCONT,  array($this, "signal"));
-			pcntl_signal(SIGHUP,  array($this, "signal"));
-		} else {
+			pcntl_signal(SIGINT, array($this, "signal"));
+			pcntl_signal(SIGUSR1, array($this, "signal"));
+			pcntl_signal(SIGUSR2, array($this, "signal"));
+			pcntl_signal(SIGCONT, array($this, "signal"));
+			pcntl_signal(SIGHUP, array($this, "signal"));
+		}
+		else {
 			$this->log("Registering signals for child", self::LOG_LEVEL_DEBUG);
 			$res = pcntl_signal(SIGTERM, array($this, "signal"));
 			if(!$res) {

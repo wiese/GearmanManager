@@ -9,8 +9,6 @@
  *
  */
 
-declare(ticks = 1);
-
 require __DIR__."/GearmanManager.php";
 
 /**
