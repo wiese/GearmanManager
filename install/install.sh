@@ -20,8 +20,10 @@ if [ -f /etc/redhat-release ]; then
 	DISTRO="rhel"
 elif [ -f /etc/debian_version ]; then
 	DISTRO="deb"
+elif [ -f /etc/SuSE-release ]; then
+	DISTRO="suse"
 else
-	echo "Only Redhat Enterprise (RHEL) or Debian systems currently supported"
+	echo "Only RHEL, Debian, and SuSE systems currently supported"
 	exit 1
 fi
 
@@ -74,5 +76,5 @@ chmod +x ${INIT_D}
 echo "Installing init script to ${INIT_D}"
 
 echo
-echo "Install ok!  Run ${INIT_D} to start and stop"
+echo "Install ok! Run ${INIT_D} to start and stop"
 echo "Worker scripts can be installed in ${CONFIG_DIR}/workers, configuration can be edited in ${CONFIG_DIR}/config.ini"

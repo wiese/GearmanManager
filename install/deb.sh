@@ -27,67 +27,69 @@ test -x ${DAEMON} || exit 0
 
 start()
 {
-  log_daemon_msg "Starting Gearman Manager"
-  if ! test -d ${PIDDIR}
-  then
-    mkdir ${PIDDIR}
-    chown ${GEARMANUSER} ${PIDDIR}
-  fi
-  if start-stop-daemon \
-    --start \
-    --startas $DAEMON \
-    --pidfile $PIDFILE \
-    -- -P $PIDFILE \
-       -l $LOGFILE \
-       -u $GEARMANUSER \
-       -d \
-       $PARAMS 
-  then
-    log_end_msg 0
-  else
-    log_end_msg 1
-    log_warning_msg "Please take a look at the syslog"
-    exit 1
-  fi
+	log_daemon_msg "Starting Gearman Manager"
+	if ! test -d ${PIDDIR}
+	then
+		mkdir ${PIDDIR}
+		chown ${GEARMANUSER} ${PIDDIR}
+	fi
+
+	if start-stop-daemon \
+		--start \
+		--startas $DAEMON \
+		--pidfile $PIDFILE \
+		-- \
+			-d \
+			-P $PIDFILE \
+			-l $LOGFILE \
+			-u $GEARMANUSER \
+			$PARAMS
+	then
+		log_end_msg 0
+	else
+		log_end_msg 1
+		log_warning_msg "Please take a look at the syslog"
+		exit 1
+	fi
 }
 
 stop()
 {
-  log_daemon_msg "Stopping Gearman Manager"
-  if start-stop-daemon \
-    --stop \
-    --oknodo \
-    --retry 20 \
-    --pidfile $PIDFILE
-  then
-    log_end_msg 0
-  else
-    log_end_msg 1
-    exit 1
-  fi
+	log_daemon_msg "Stopping Gearman Manager"
+	if start-stop-daemon \
+		--stop \
+		--oknodo \
+		--retry 20 \
+		--pidfile $PIDFILE
+	then
+		log_end_msg 0
+	else
+		log_end_msg 1
+		exit 1
+	fi
 }
 
 case "$1" in
 
-  start)
-    start
-  ;;
+	start)
+		start
+	;;
 
-  stop)
-    stop
-  ;;
+	stop)
+		stop
+	;;
 
-  restart|force-reload)
-    stop
-    start
-  ;;
+	restart|force-reload)
+		stop
+		start
+	;;
 
-  status)
-    status_of_proc -p $PIDFILE $DAEMON "Gearman Manager"
-  ;;
+	status)
+		status_of_proc -p $PIDFILE $DAEMON "Gearman Manager"
+	;;
 
-  *)
-    echo "Usage: $0 {start|stop|restart|force-reload|status|help}"
-  ;;
+	*)
+		echo "Usage: $0 {start|stop|restart|force-reload|status|help}"
+	;;
 
 esac
